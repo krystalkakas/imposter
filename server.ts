@@ -78,6 +78,7 @@ async function startServer() {
               phase: "LOBBY",
               players: [player],
               currentTurnIndex: 0,
+              skipVotes: 0,
             };
 
             rooms.set(roomId, state);
@@ -142,6 +143,7 @@ async function startServer() {
             state.winner = undefined;
             state.eliminatedPlayerId = undefined;
             state.lastGuess = undefined;
+            state.skipVotes = 0;
 
             // Assign roles
             const impostorIndex = Math.floor(Math.random() * state.players.length);
@@ -202,38 +204,56 @@ async function startServer() {
             const voter = state.players.find(p => p.id === info.playerId);
             if (!voter || voter.hasVoted) return;
 
-            const target = state.players.find(p => p.id === payload.targetId);
-            if (!target) return;
-
-            voter.hasVoted = true;
-            target.voteCount++;
+            if (payload.targetId === "skip") {
+              voter.hasVoted = true;
+              state.skipVotes++;
+            } else {
+              const target = state.players.find(p => p.id === payload.targetId);
+              if (!target) return;
+              voter.hasVoted = true;
+              target.voteCount++;
+            }
 
             const allVoted = state.players.every(p => p.hasVoted);
             if (allVoted) {
-              // Find most voted
-              let maxVotes = -1;
-              let eliminated: Player | null = null;
-              
-              state.players.forEach(p => {
-                if (p.voteCount > maxVotes) {
-                  maxVotes = p.voteCount;
-                  eliminated = p;
-                }
-              });
-
-              if (eliminated) {
-                (eliminated as Player).isEliminated = true;
-                state.eliminatedPlayerId = (eliminated as Player).id;
+              // Check if skip votes reach threshold (at least 50%)
+              const threshold = state.players.length / 2;
+              if (state.skipVotes >= threshold) {
+                // Skip elimination, go back to hinting
+                state.phase = "HINTING";
+                state.currentTurnIndex = 0;
+                state.skipVotes = 0;
+                state.players.forEach(p => {
+                  p.hint = undefined;
+                  p.voteCount = 0;
+                  p.hasVoted = false;
+                });
+              } else {
+                // Find most voted player
+                let maxVotes = -1;
+                let eliminated: Player | null = null;
                 
-                if ((eliminated as Player).role === "IMPOSTOR") {
-                  state.phase = "IMPOSTOR_GUESS";
-                } else {
-                  // Impostor wins if civilian is eliminated
-                  state.phase = "RESULT";
-                  state.winner = "IMPOSTOR";
-                  // Update scores
-                  const impostor = state.players.find(p => p.role === "IMPOSTOR");
-                  if (impostor) impostor.score += 3;
+                state.players.forEach(p => {
+                  if (p.voteCount > maxVotes) {
+                    maxVotes = p.voteCount;
+                    eliminated = p;
+                  }
+                });
+
+                if (eliminated) {
+                  (eliminated as Player).isEliminated = true;
+                  state.eliminatedPlayerId = (eliminated as Player).id;
+                  
+                  if ((eliminated as Player).role === "IMPOSTOR") {
+                    state.phase = "IMPOSTOR_GUESS";
+                  } else {
+                    // Impostor wins if civilian is eliminated
+                    state.phase = "RESULT";
+                    state.winner = "IMPOSTOR";
+                    // Update scores
+                    const impostor = state.players.find(p => p.role === "IMPOSTOR");
+                    if (impostor) impostor.score += 3;
+                  }
                 }
               }
             }

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, 
   Play, 
@@ -491,6 +491,29 @@ export default function App() {
             </div>
           </button>
         ))}
+
+        <button 
+          disabled={currentPlayer?.hasVoted || currentPlayer?.isEliminated}
+          onClick={() => handleVote('skip')}
+          className={`flex flex-col items-center justify-center gap-2 p-6 rounded-3xl border transition-all relative overflow-hidden group ${
+            currentPlayer?.hasVoted ? 'cursor-default' : 'hover:border-white hover:bg-white/5'
+          } bg-slate-800/30 border-slate-800 border-dashed`}
+        >
+          <div className="text-5xl mb-2">🏳️</div>
+          <div className="text-center">
+            <p className="font-bold text-lg">Bỏ phiếu trắng</p>
+            <p className="text-xs text-slate-500 italic">Không loại ai vòng này</p>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700">
+            {gameState?.phase === 'VOTING' ? null : (
+              <motion.div 
+                className="h-full bg-white"
+                initial={{ width: 0 }}
+                animate={{ width: `${(gameState?.skipVotes || 0) / (gameState?.players.length || 1) * 100}%` }}
+              />
+            )}
+          </div>
+        </button>
       </div>
 
       <div className="mt-auto p-6 bg-slate-800/50 rounded-3xl border border-slate-700 text-center">

@@ -24,6 +24,7 @@ export interface GameState {
   winner?: 'CIVILIANS' | 'IMPOSTOR';
   eliminatedPlayerId?: string;
   lastGuess?: string;
+  skipVotes: number;
 }
 
 export interface ServerToClientEvents {

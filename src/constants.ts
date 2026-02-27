@@ -1,5 +1,3 @@
-import { Type } from "@google/genai";
-
 export interface KeywordTopic {
   topic: string;
   keywords: string[];
@@ -7,63 +5,63 @@ export interface KeywordTopic {
 
 export const KEYWORD_DATA: KeywordTopic[] = [
   {
-    topic: "Đồ ăn Việt Nam",
-    keywords: ["Phở", "Bún chả", "Bánh mì", "Cơm tấm", "Bún riêu", "Bánh xèo", "Gỏi cuốn", "Cháo lòng", "Bún bò Huế", "Bánh cuốn", "Hủ tiếu", "Bánh đa cua", "Bún đậu mắm tôm", "Xôi xéo", "Bánh canh", "Bún mắm", "Bánh chưng", "Nem rán", "Cá kho tộ", "Canh chua"]
+    topic: "Quà vặt",
+    keywords: ["Bánh tráng trộn", "Nem chua rán", "Cá viên chiên", "Bắp xào", "Bánh tráng nướng", "Trứng vịt lộn", "Xoài lắc", "Bò bía", "Kem ống", "Kẹo bông"]
   },
   {
-    topic: "Mạng xã hội & Xu hướng",
-    keywords: ["TikTok", "Facebook", "Instagram", "Threads", "YouTube", "Livestream", "Viral", "Influencer", "Meme", "Hashtag", "Follower", "Content Creator", "Podcast", "Shorts", "Reels", "Story", "Comment", "Share", "Like", "Trending"]
+    topic: "Món nước",
+    keywords: ["Phở bò", "Bún chả", "Bún riêu", "Hủ tiếu", "Cháo lòng", "Mì tôm", "Bún bò", "Mì quảng", "Bánh đa cua", "Bún mắm"]
   },
   {
-    topic: "Du lịch Việt Nam",
-    keywords: ["Hạ Long", "Đà Lạt", "Phú Quốc", "Hội An", "Sapa", "Nha Trang", "Huế", "Phong Nha", "Mũi Né", "Đảo Lý Sơn", "Côn Đảo", "Tràng An", "Tam Cốc", "Fansipan", "Bà Nà Hills", "Chợ nổi Cái Răng", "Địa đạo Củ Chi", "Mù Cang Chải", "Hà Giang", "Vũng Tàu"]
+    topic: "Nước giải khát",
+    keywords: ["Cà phê sữa", "Trà đá", "Nước mía", "Trà chanh", "Nước dừa", "Sinh tố", "Trà tắc", "Sữa đậu nành", "Bia hơi", "Nước cam"]
   },
   {
-    topic: "Slang Gen Z",
-    keywords: ["Flex", "Chill", "Ghost", "Red flag", "Green flag", "Slay", "Cringe", "Simp", "Toxic", "Drama", "Vibe", "Over hợp", "Chằm Zn", "Gét gô", "Ét ô ét", "U là trời", "Xu cà na", "Phát cơm chó", "Cắm sừng", "Trà xanh"]
+    topic: "Đồ công nghệ",
+    keywords: ["Điện thoại", "Máy tính bảng", "Máy ảnh", "Đồng hồ", "Máy chơi game", "Sạc dự phòng", "Loa thùng", "Máy đọc sách", "Tai nghe", "Chuột máy tính"]
   },
   {
-    topic: "Phim & Nhạc Hot",
-    keywords: ["Rap Việt", "Anh Trai Say Hi", "Anh Trai Vượt Ngàn Chông Gai", "Lật Mặt", "Mai", "Em và Trịnh", "Bố Già", "Mắt Biếc", "Người Vợ Cuối Cùng", "Đất Rừng Phương Nam", "Vợ Ba", "Song Lang", "Chị Chị Em Em", "Tiệc Trăng Máu", "Gái Già Lắm Chiêu", "Em Chưa 18", "Tôi Thấy Hoa Vàng Trên Cỏ Xanh", "Tháng Năm Rực Rỡ", "Cô Ba Sài Gòn", "Hai Phượng"]
+    topic: "Vật dụng túi xách",
+    keywords: ["Ví tiền", "Chìa khóa", "Son môi", "Gương soi", "Lược chải", "Khẩu trang", "Bình nước", "Sổ tay", "Bút bi", "Tai nghe"]
   },
   {
-    topic: "Thể thao",
-    keywords: ["Bóng đá", "Cầu lông", "Bóng rổ", "Bóng chuyền", "Tennis", "Bơi lội", "Chạy bộ", "Gym", "Yoga", "Đạp xe", "Võ thuật", "Bắn súng", "Đấu kiếm", "Golf", "Bóng bàn", "Leo núi", "Trượt ván", "Bóng bầu dục", "Bóng chày", "Đua xe"]
+    topic: "Đồ mùa đông",
+    keywords: ["Áo khoác", "Khăn len", "Mũ len", "Găng tay", "Áo len", "Bốt cao cổ", "Quần tất", "Áo giữ nhiệt", "Bịt tai", "Tất chân"]
   },
   {
-    topic: "Công nghệ thường ngày",
-    keywords: ["Smartphone", "Laptop", "Tai nghe Bluetooth", "Sạc dự phòng", "Smartwatch", "Máy tính bảng", "Wifi", "ChatGPT", "AI", "Robot hút bụi", "Camera an ninh", "Tivi thông minh", "Loa thông minh", "Chuột không dây", "Bàn phím cơ", "Máy ảnh", "Flycam", "Kính VR", "Ổ cứng di động", "Máy in"]
+    topic: "Khu vui chơi",
+    keywords: ["Rạp chiếu phim", "Quán cà phê", "Phố đi bộ", "Công viên", "Bãi biển", "Chợ đêm", "Trung tâm thương mại", "Sân vận động", "Nhà hát", "Sở thú"]
   },
   {
-    topic: "Trường học & Sinh viên",
-    keywords: ["Ký túc xá", "Thư viện", "Học bổng", "Đồ án", "Tiểu luận", "Thi học kỳ", "Câu lạc bộ", "Thực tập", "Tốt nghiệp", "Giảng đường", "Căng tin", "Bảo vệ", "Gửi xe", "Học phí", "Đăng ký tín chỉ", "Phòng trọ", "Xe buýt", "Làm thêm", "Tình nguyện", "Mùa hè xanh"]
+    topic: "Nghề nghiệp",
+    keywords: ["Giáo viên", "Bác sĩ", "Công an", "Lính cứu hỏa", "Bộ đội", "Bảo vệ", "Lao công", "Thủ thư", "Luật sư", "Thẩm phán"]
   },
   {
-    topic: "Thời trang đường phố",
-    keywords: ["Sneaker", "Hoodie", "T-shirt", "Jeans", "Túi đeo chéo", "Mũ lưỡi trai", "Áo khoác bomber", "Quần jogger", "Kính râm", "Vòng tay", "Tất cao cổ", "Áo oversize", "Local Brand", "Streetwear", "Vintage", "Y2K", "Minimalism", "Denim", "Flannel", "Cargo pants"]
+    topic: "Thú cưng",
+    keywords: ["Con chó", "Con mèo", "Con thỏ", "Con cá vàng", "Con chim cảnh", "Con chuột lang", "Con rùa", "Con vẹt", "Con nhím", "Con sóc"]
   },
   {
-    topic: "Động vật cute đang trend",
-    keywords: ["Mèo Anh lông ngắn", "Chó Corgi", "Gấu trúc", "Chuột Capybara", "Thỏ", "Sóc", "Chim cánh cụt", "Hải cẩu", "Cáo", "Gấu Bắc Cực", "Chó Husky", "Mèo Munchkin", "Chuột Hamster", "Vịt vàng", "Gấu Koala", "Lười", "Rái cá", "Voi con", "Hươu cao cổ", "Ngựa vằn"]
+    topic: "Quả vỏ dày",
+    keywords: ["Quả sầu riêng", "Quả mít", "Quả dừa", "Quả bưởi", "Quả cam", "Quả măng cụt", "Quả dứa", "Quả thanh long", "Quả xoài", "Quả dưa hấu"]
   },
   {
-    topic: "Cảm xúc & Tâm trạng",
-    keywords: ["Hạnh phúc", "Buồn bã", "Giận dữ", "Lo lắng", "Hào hứng", "Mệt mỏi", "Cô đơn", "Bối rối", "Ngạc nhiên", "Tự tin", "Sợ hãi", "Thất vọng", "Biết ơn", "Hy vọng", "Yêu đời", "Áp lực", "Thư giãn", "Nhớ nhung", "Ghen tị", "Hối hận"]
+    topic: "Đồ dùng học tập",
+    keywords: ["Bảng đen", "Phấn trắng", "Bàn học", "Ghế gỗ", "Cặp sách", "Hộp bút", "Vở ghi", "Sách giáo khoa", "Bản đồ", "Quả địa cầu"]
   },
   {
-    topic: "Nghề nghiệp hiện đại",
-    keywords: ["Streamer", "YouTuber", "TikToker", "Lập trình viên", "Designer", "Copywriter", "Digital Marketer", "Data Analyst", "UI/UX Designer", "Video Editor", "Freelancer", "E-commerce Specialist", "SEO Expert", "Social Media Manager", "AI Engineer", "Blockchain Developer", "Cyber Security", "Game Developer", "Podcaster", "Vlogger"]
+    topic: "Thời tiết",
+    keywords: ["Cầu vồng", "Sấm sét", "Mưa phùn", "Nắng gắt", "Sương mù", "Bão lốc", "Bình minh", "Hoàng hôn", "Thủy triều", "Nhật thực"]
   },
   {
-    topic: "Ẩm thực quốc tế phổ biến ở VN",
-    keywords: ["Sushi", "Pizza", "Hamburger", "Mì Ý", "Tokbokki", "Kimbap", "Gà rán", "Lẩu Thái", "Dimsum", "Mì Ramen", "Steak", "Tacos", "Doner Kebab", "Sashimi", "Mì Udon", "Cơm trộn Bibimbap", "Bánh Tart trứng", "Mì cay", "Lẩu Manwah", "Haidilao"]
+    topic: "Nội thất",
+    keywords: ["Giường ngủ", "Gối ôm", "Chăn bông", "Đèn ngủ", "Tủ quần áo", "Bàn trang điểm", "Rèm cửa", "Thảm sàn", "Đồng hồ báo thức", "Máy xông tinh dầu"]
   },
   {
-    topic: "Thiên nhiên & Thời tiết",
-    keywords: ["Cầu vồng", "Sấm sét", "Bão", "Sương mù", "Nắng gắt", "Mưa phùn", "Tuyết rơi", "Bình minh", "Hoàng hôn", "Rừng rậm", "Thác nước", "Hang động", "Sa mạc", "Đại dương", "Núi lửa", "Động đất", "Thủy triều", "Gió lốc", "Mây mù", "Trăng rằm"]
+    topic: "Xe cộ",
+    keywords: ["Xe máy", "Xe đạp", "Ô tô", "Xe buýt", "Xe điện", "Xích lô", "Xe tải", "Xe cần cẩu", "Xe cứu thương", "Xe cảnh sát"]
   },
   {
-    topic: "Cuộc sống chung cư / thành thị",
-    keywords: ["Thang máy", "Hầm gửi xe", "Thẻ cư dân", "Ban công", "Bể bơi", "Phòng Gym", "Siêu thị tiện lợi", "Bảo vệ 24/7", "Tiếng ồn", "Tắc đường", "Khói bụi", "Đèn đường", "Công viên", "Phố đi bộ", "Trung tâm thương mại", "Rạp chiếu phim", "Quán cà phê", "Vỉa hè", "Biển quảng cáo", "Grab"]
+    topic: "Môn thể thao",
+    keywords: ["Bóng đá", "Cầu lông", "Bơi lội", "Leo núi", "Đạp xe", "Chạy bộ", "Câu cá", "Điền kinh", "Võ thuật", "Cờ vua"]
   }
 ];
