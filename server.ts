@@ -3,9 +3,10 @@ import { createServer as createViteServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
 import { KEYWORD_DATA } from "./src/constants";
 import { GameState, Player, GamePhase } from "./src/types";
+import path from "path";
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // In-memory store for rooms
 const rooms: Map<string, GameState> = new Map();
@@ -46,7 +47,7 @@ function sendToSocket(socket: WebSocket, type: string, payload: any) {
 
 async function startServer() {
   const server = app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 
   const wss = new WebSocketServer({ server });
@@ -321,7 +322,13 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static("dist"));
+    // Serve static files from dist
+    app.use(express.static(path.join(process.cwd(), "dist")));
+    
+    // SPA fallback: serve index.html for any unknown routes
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(process.cwd(), "dist", "index.html"));
+    });
   }
 }
 
