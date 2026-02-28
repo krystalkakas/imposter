@@ -5,17 +5,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Users, 
-  Play, 
-  Plus, 
-  Info, 
-  Copy, 
-  Check, 
-  Clock, 
-  Send, 
-  Trophy, 
-  Home, 
+import {
+  Users,
+  Play,
+  Plus,
+  Info,
+  Copy,
+  Check,
+  Clock,
+  Send,
+  Trophy,
+  Home,
   RotateCcw,
   AlertCircle,
   ChevronRight,
@@ -76,7 +76,7 @@ export default function App() {
       return;
     }
     send('create_room', { name: playerName });
-    
+
     const listener = (event: MessageEvent) => {
       const { type, payload } = JSON.parse(event.data);
       if (type === 'room_state') {
@@ -97,7 +97,7 @@ export default function App() {
       return;
     }
     send('join_room', { roomId: roomIdInput, name: playerName });
-    
+
     const listener = (event: MessageEvent) => {
       const { type, payload } = JSON.parse(event.data);
       if (type === 'room_state') {
@@ -165,7 +165,7 @@ export default function App() {
   // Views
   const renderHome = () => (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 max-w-[500px] mx-auto">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-12"
@@ -179,8 +179,8 @@ export default function App() {
       <div className="w-full space-y-4">
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-400 ml-1">Tên của bạn</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Nhập tên hiển thị..."
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
@@ -189,7 +189,7 @@ export default function App() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 pt-4">
-          <button 
+          <button
             onClick={handleCreateRoom}
             className="flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-primary/20"
           >
@@ -198,14 +198,14 @@ export default function App() {
           </button>
 
           <div className="relative">
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Mã phòng (6 ký tự)"
               value={roomIdInput}
               onChange={(e) => setRoomIdInput(e.target.value.toUpperCase())}
               className="w-full bg-slate-800/50 border border-slate-700 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all text-lg uppercase"
             />
-            <button 
+            <button
               onClick={handleJoinRoom}
               className="absolute right-2 top-2 bottom-2 bg-secondary hover:bg-secondary/90 text-white font-bold px-6 rounded-xl transition-all"
             >
@@ -214,7 +214,7 @@ export default function App() {
           </div>
         </div>
 
-        <button 
+        <button
           onClick={() => setShowRules(true)}
           className="w-full flex items-center justify-center gap-2 text-slate-400 hover:text-white transition-colors py-4"
         >
@@ -225,13 +225,13 @@ export default function App() {
 
       <AnimatePresence>
         {showRules && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -246,7 +246,7 @@ export default function App() {
                 <p><span className="text-white font-bold">5. Cơ hội cuối:</span> Nếu kẻ mạo danh bị loại, họ có 1 cơ hội đoán từ khóa để lật ngược thế cờ.</p>
                 <p><span className="text-white font-bold">6. Thắng cuộc:</span> Kẻ mạo danh thắng nếu không bị loại HOẶC đoán đúng từ khóa. Dân thường thắng nếu loại đúng kẻ mạo danh VÀ hắn đoán sai.</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowRules(false)}
                 className="w-full mt-8 bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all"
               >
@@ -266,7 +266,7 @@ export default function App() {
           <h2 className="text-sm font-medium text-slate-400 uppercase tracking-widest mb-1">Mã phòng</h2>
           <div className="flex items-center gap-3">
             <span className="text-3xl font-display font-bold text-white tracking-wider">{gameState?.roomId}</span>
-            <button 
+            <button
               onClick={copyRoomId}
               className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all text-slate-400 hover:text-white"
             >
@@ -274,16 +274,16 @@ export default function App() {
             </button>
           </div>
         </div>
-          <div className="text-right ml-6">
-            <h2 className="text-sm font-medium text-slate-400 uppercase tracking-widest mb-1">Người chơi</h2>
-            <span className="text-3xl font-display font-bold text-white">{gameState?.players.length}/10</span>
-          </div>
+        <div className="text-right ml-6">
+          <h2 className="text-sm font-medium text-slate-400 uppercase tracking-widest mb-1">Người chơi</h2>
+          <span className="text-3xl font-display font-bold text-white">{gameState?.players.length}/10</span>
+        </div>
       </div>
 
       <div className="flex-1 bg-slate-800/30 border border-slate-800 rounded-3xl p-6 mb-8 overflow-y-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {gameState?.players.map((player) => (
-            <motion.div 
+            <motion.div
               key={player.id}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -312,17 +312,17 @@ export default function App() {
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="font-bold">Số vòng tối đa</span>
-                <span className="text-xs text-slate-500">Buộc phải vote khi hết vòng</span>
+                <span className="text-xs text-slate-500">Buộc phải vote khi đến vòng cuối</span>
               </div>
               <div className="flex items-center gap-4">
-                <button 
+                <button
                   onClick={() => handleUpdateMaxRounds(Math.max(1, (gameState?.maxRounds || 10) - 1))}
                   className="w-10 h-10 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl transition-all"
                 >
                   -
                 </button>
                 <span className="text-xl font-bold w-8 text-center">{gameState?.maxRounds}</span>
-                <button 
+                <button
                   onClick={() => handleUpdateMaxRounds(Math.min(20, (gameState?.maxRounds || 10) + 1))}
                   className="w-10 h-10 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl transition-all"
                 >
@@ -331,7 +331,7 @@ export default function App() {
               </div>
             </div>
           </div>
-          <button 
+          <button
             onClick={handleStartGame}
             disabled={(gameState?.players.length || 0) < 3}
             className="w-full flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-5 rounded-2xl transition-all shadow-lg shadow-primary/20 text-xl"
@@ -354,9 +354,9 @@ export default function App() {
   const renderRoleReveal = () => (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 max-w-[500px] mx-auto">
       <h2 className="text-2xl font-display font-bold mb-12 text-center">Vai trò của bạn</h2>
-      
+
       <div className="w-full aspect-[3/4]">
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="w-full h-full bg-slate-800 rounded-[2rem] flex flex-col items-center justify-center p-8 border-4 border-primary/50 shadow-2xl"
@@ -368,7 +368,7 @@ export default function App() {
               <p className="text-slate-400 mb-2 uppercase text-sm font-bold tracking-widest">Chủ đề</p>
               <p className="text-3xl font-bold text-white bg-primary/20 px-8 py-3 rounded-2xl border border-primary/30 shadow-inner">{gameState?.topic}</p>
               <p className="mt-12 text-center text-slate-400 text-sm italic leading-relaxed">
-                Bạn không biết từ khóa chính xác.<br/>Hãy lắng nghe gợi ý của người khác và hòa nhập!
+                Bạn không biết từ khóa chính xác.<br />Hãy lắng nghe gợi ý của người khác và hòa nhập!
               </p>
             </>
           ) : (
@@ -378,7 +378,7 @@ export default function App() {
               <p className="text-slate-400 mb-2 uppercase text-sm font-bold tracking-widest">Từ khóa của bạn</p>
               <p className="text-4xl font-bold text-white bg-secondary/20 px-8 py-3 rounded-2xl border border-secondary/30 shadow-inner">{gameState?.keyword}</p>
               <p className="mt-12 text-center text-slate-400 text-sm italic leading-relaxed">
-                Hãy đưa ra gợi ý đủ để đồng đội hiểu<br/>nhưng đừng quá lộ liễu cho kẻ mạo danh!
+                Hãy đưa ra gợi ý đủ để đồng đội hiểu<br />nhưng đừng quá lộ liễu cho kẻ mạo danh!
               </p>
             </>
           )}
@@ -412,14 +412,13 @@ export default function App() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 overflow-hidden">
           <div className="md:col-span-2 flex flex-col gap-4 overflow-y-auto pr-2 pb-20">
             {gameState?.players.map((player) => (
-              <div 
+              <div
                 key={player.id}
-                className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${
-                  player.isEliminated ? 'opacity-40 grayscale' :
-                  player.id === currentTurnPlayer?.id 
-                    ? 'bg-primary/10 border-primary shadow-lg shadow-primary/5' 
-                    : 'bg-slate-800/30 border-slate-800'
-                }`}
+                className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${player.isEliminated ? 'opacity-40 grayscale' :
+                    player.id === currentTurnPlayer?.id
+                      ? 'bg-primary/10 border-primary shadow-lg shadow-primary/5'
+                      : 'bg-slate-800/30 border-slate-800'
+                  }`}
               >
                 <div className="text-3xl">{player.avatar}</div>
                 <div className="flex-1">
@@ -455,18 +454,18 @@ export default function App() {
             </div>
 
             {isMyTurn && !currentPlayer?.hint && !currentPlayer?.isEliminated && (
-              <motion.div 
+              <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 className="flex flex-col gap-3"
               >
-                <textarea 
+                <textarea
                   placeholder="Nhập gợi ý của bạn..."
                   value={hintInput}
                   onChange={(e) => setHintInput(e.target.value)}
                   className="w-full bg-slate-900 border border-primary/50 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none h-32"
                 />
-                <button 
+                <button
                   onClick={handleSubmitHint}
                   className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-primary/20"
                 >
@@ -477,7 +476,7 @@ export default function App() {
             )}
 
             {currentPlayer?.isHost && (
-              <button 
+              <button
                 onClick={handleCancelGame}
                 className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-4 rounded-2xl border border-red-500/30 transition-all mt-auto"
               >
@@ -506,15 +505,13 @@ export default function App() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         {gameState?.players.map((player) => (
-          <button 
+          <button
             key={player.id}
             disabled={currentPlayer?.hasVoted || player.id === currentPlayer?.id || player.isEliminated}
             onClick={() => handleVote(player.id)}
-            className={`flex flex-col items-center gap-2 p-6 rounded-3xl border transition-all relative overflow-hidden group ${
-              player.id === currentPlayer?.id ? 'opacity-50 grayscale' : ''
-            } ${
-              currentPlayer?.hasVoted ? 'cursor-default' : 'hover:border-primary hover:bg-primary/5'
-            } bg-slate-800/30 border-slate-800`}
+            className={`flex flex-col items-center gap-2 p-6 rounded-3xl border transition-all relative overflow-hidden group ${player.id === currentPlayer?.id ? 'opacity-50 grayscale' : ''
+              } ${currentPlayer?.hasVoted ? 'cursor-default' : 'hover:border-primary hover:bg-primary/5'
+              } bg-slate-800/30 border-slate-800`}
           >
             <div className="text-5xl group-hover:scale-110 transition-transform mb-2">{player.avatar}</div>
             <div className="text-center">
@@ -528,7 +525,7 @@ export default function App() {
             )}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700">
               {gameState?.phase === 'VOTING' ? null : (
-                <motion.div 
+                <motion.div
                   className="h-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${(player.voteCount / (gameState?.players.length || 1)) * 100}%` }}
@@ -538,42 +535,55 @@ export default function App() {
           </button>
         ))}
 
-        <button 
-          disabled={currentPlayer?.hasVoted || currentPlayer?.isEliminated}
-          onClick={() => handleVote('skip')}
-          className={`flex flex-col items-center justify-center gap-2 p-6 rounded-3xl border transition-all relative overflow-hidden group ${
-            currentPlayer?.hasVoted ? 'cursor-default' : 'hover:border-white hover:bg-white/5'
-          } bg-slate-800/30 border-slate-800 border-dashed`}
-        >
-          <div className="text-5xl mb-2">🏳️</div>
-          <div className="text-center">
-            <p className="font-bold text-lg">Bỏ phiếu trắng</p>
-            <p className="text-xs text-slate-500 italic">Không loại ai vòng này</p>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700">
-            {gameState?.phase === 'VOTING' ? null : (
-              <motion.div 
-                className="h-full bg-white"
-                initial={{ width: 0 }}
-                animate={{ width: `${(gameState?.skipVotes || 0) / (gameState?.players.length || 1) * 100}%` }}
-              />
-            )}
-          </div>
-        </button>
+        {gameState && gameState.currentRound < gameState.maxRounds && (
+          <button
+            disabled={currentPlayer?.hasVoted || currentPlayer?.isEliminated}
+            onClick={() => handleVote('skip')}
+            className={`flex flex-col items-center justify-center gap-2 p-6 rounded-3xl border transition-all relative overflow-hidden group ${currentPlayer?.hasVoted ? 'cursor-default' : 'hover:border-white hover:bg-white/5'
+              } bg-slate-800/30 border-slate-800 border-dashed`}
+          >
+            <div className="text-5xl mb-2">🏳️</div>
+            <div className="text-center">
+              <p className="font-bold text-lg">Bỏ phiếu trắng</p>
+              <p className="text-xs text-slate-500 italic">Không loại ai vòng này</p>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700">
+              {gameState?.phase === 'VOTING' ? null : (
+                <motion.div
+                  className="h-full bg-white"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(gameState?.skipVotes || 0) / (gameState?.players.length || 1) * 100}%` }}
+                />
+              )}
+            </div>
+          </button>
+        )}
       </div>
 
       <div className="mt-auto flex flex-col gap-4">
+        {gameState && gameState.currentRound >= gameState.maxRounds && (
+          <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-center">
+            <p className="text-red-400 font-bold text-sm">⚠️ Vòng cuối - Bắt buộc phải vote!</p>
+          </div>
+        )}
         <div className="p-6 bg-slate-800/50 rounded-3xl border border-slate-700 text-center">
-          <p className="text-slate-400 mb-2 uppercase text-xs font-bold tracking-widest">Tiến độ bỏ phiếu</p>
-          <div className="flex justify-center gap-2">
+          <p className="text-slate-400 mb-3 uppercase text-xs font-bold tracking-widest">Tiến độ bỏ phiếu</p>
+          <div className="flex flex-wrap justify-center gap-2">
             {gameState?.players.filter(p => !p.isEliminated).map((p) => (
-              <div key={p.id} className={`w-3 h-3 rounded-full ${p.hasVoted ? 'bg-green-500' : 'bg-slate-700'}`} />
+              <div key={p.id} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${p.hasVoted
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  : 'bg-slate-800 text-slate-500 border border-slate-700'
+                }`}>
+                <span>{p.avatar}</span>
+                <span>{p.name}</span>
+                {p.hasVoted && <Check size={12} />}
+              </div>
             ))}
           </div>
         </div>
 
         {currentPlayer?.isHost && (
-          <button 
+          <button
             onClick={handleCancelGame}
             className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-4 rounded-2xl border border-red-500/30 transition-all"
           >
@@ -595,15 +605,15 @@ export default function App() {
         <div className="w-full space-y-4">
           <div className="space-y-2 text-left">
             <label className="text-sm font-medium text-slate-400 ml-1">Đoán từ khóa</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Nhập từ khóa bạn nghĩ..."
               value={guessInput}
               onChange={(e) => setGuessInput(e.target.value)}
               className="w-full bg-slate-800/50 border border-primary/50 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-lg"
             />
           </div>
-          <button 
+          <button
             onClick={handleGuess}
             className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-primary/20 text-lg"
           >
@@ -620,7 +630,7 @@ export default function App() {
       )}
 
       {currentPlayer?.isHost && (
-        <button 
+        <button
           onClick={handleCancelGame}
           className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-4 rounded-2xl border border-red-500/30 transition-all mt-12"
         >
@@ -632,12 +642,12 @@ export default function App() {
   );
 
   const renderResult = () => {
-    const isWin = (currentPlayer?.role === 'IMPOSTOR' && gameState?.winner === 'IMPOSTOR') || 
-                 (currentPlayer?.role === 'CIVILIAN' && gameState?.winner === 'CIVILIANS');
-    
+    const isWin = (currentPlayer?.role === 'IMPOSTOR' && gameState?.winner === 'IMPOSTOR') ||
+      (currentPlayer?.role === 'CIVILIAN' && gameState?.winner === 'CIVILIANS');
+
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 max-w-[600px] mx-auto text-center">
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="mb-8"
@@ -676,7 +686,7 @@ export default function App() {
 
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
           {currentPlayer?.isHost && (
-            <button 
+            <button
               onClick={handlePlayAgain}
               className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl transition-all"
             >
@@ -684,7 +694,7 @@ export default function App() {
               Về phòng chờ
             </button>
           )}
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl transition-all"
           >
@@ -700,7 +710,7 @@ export default function App() {
   const renderError = () => (
     <AnimatePresence>
       {error && (
-        <motion.div 
+        <motion.div
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 50, opacity: 0 }}

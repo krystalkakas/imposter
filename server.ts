@@ -168,7 +168,7 @@ async function startServer() {
             // Setup game
             const topicData = KEYWORD_DATA[Math.floor(Math.random() * KEYWORD_DATA.length)];
             const keyword = topicData.keywords[Math.floor(Math.random() * topicData.keywords.length)];
-            
+
             state.topic = topicData.topic;
             state.keyword = keyword;
             state.phase = "ROLE_REVEAL";
@@ -212,22 +212,22 @@ async function startServer() {
             if (currentPlayer.id !== info.playerId) return;
 
             currentPlayer.hint = payload.hint;
-            
+
             // Move to next turn
             let nextIndex = (state.currentTurnIndex + 1) % state.players.length;
             while (state.players[nextIndex].isEliminated) {
               nextIndex = (nextIndex + 1) % state.players.length;
             }
-            
+
             // Check if all players have given hints
             const allHintsGiven = state.players.filter(p => !p.isEliminated).every(p => p.hint !== undefined);
-            
+
             if (allHintsGiven) {
               state.phase = "VOTING";
             } else {
               state.currentTurnIndex = nextIndex;
             }
-            
+
             broadcast(info.roomId);
             break;
           }
@@ -241,7 +241,12 @@ async function startServer() {
             const voter = state.players.find(p => p.id === info.playerId);
             if (!voter || voter.hasVoted) return;
 
+            // Block skip votes at final round
             if (payload.targetId === "skip") {
+              if (state.currentRound >= state.maxRounds) {
+                sendToSocket(socket, "error", "Vòng cuối - Bắt buộc phải vote cho ai đó!");
+                return;
+              }
               voter.hasVoted = true;
               state.skipVotes++;
             } else {
@@ -251,22 +256,23 @@ async function startServer() {
               target.voteCount++;
             }
 
-            const allVoted = state.players.every(p => p.hasVoted);
+            const activePlayers = state.players.filter(p => !p.isEliminated);
+            const allVoted = activePlayers.every(p => p.hasVoted);
             if (allVoted) {
-              // Check if skip votes reach threshold (at least 50%)
-              const threshold = state.players.filter(p => !p.isEliminated).length / 2;
+              // Check if skip votes reach threshold (at least 50%) — only possible before max rounds
+              const threshold = activePlayers.length / 2;
               if (state.skipVotes >= threshold && state.currentRound < state.maxRounds) {
                 // Skip elimination, go back to hinting
                 state.phase = "HINTING";
                 state.currentRound++;
-                
+
                 // Find first non-eliminated player to start the turn
                 let firstIndex = 0;
                 while (state.players[firstIndex].isEliminated) {
                   firstIndex++;
                 }
                 state.currentTurnIndex = firstIndex;
-                
+
                 state.skipVotes = 0;
                 state.players.forEach(p => {
                   p.hint = undefined;
@@ -277,47 +283,92 @@ async function startServer() {
                 // Find most voted player
                 let maxVotes = -1;
                 let eliminated: Player | null = null;
-                
-                state.players.filter(p => !p.isEliminated).forEach(p => {
+                let isTie = false;
+
+                activePlayers.forEach(p => {
                   if (p.voteCount > maxVotes) {
                     maxVotes = p.voteCount;
                     eliminated = p;
+                    isTie = false;
+                  } else if (p.voteCount === maxVotes && maxVotes > 0) {
+                    isTie = true;
                   }
                 });
 
-                if (eliminated) {
+                // If tie at max rounds → revote (reset votes, stay in VOTING)
+                if (isTie && state.currentRound >= state.maxRounds) {
+                  state.skipVotes = 0;
+                  state.players.forEach(p => {
+                    p.voteCount = 0;
+                    p.hasVoted = false;
+                  });
+                } else if (eliminated && maxVotes > 0) {
                   (eliminated as Player).isEliminated = true;
                   state.eliminatedPlayerId = (eliminated as Player).id;
-                  
+
                   if ((eliminated as Player).role === "IMPOSTOR") {
                     state.phase = "IMPOSTOR_GUESS";
                   } else {
-                    // Check if any impostor left
+                    // Check remaining players
+                    const remainingCivilians = state.players.filter(p => p.role === "CIVILIAN" && !p.isEliminated).length;
                     const impostorLeft = state.players.some(p => p.role === "IMPOSTOR" && !p.isEliminated);
+
                     if (!impostorLeft) {
                       state.phase = "RESULT";
                       state.winner = "CIVILIANS";
                       state.players.forEach(p => {
                         if (p.role === "CIVILIAN") p.score += 1;
                       });
-                    } else {
-                      // Impostor wins if civilian is eliminated (in this simplified 1-impostor version)
-                      // Actually, usually game continues until impostor is found or civilians are too few.
-                      // But the previous code said:
+                    } else if (remainingCivilians <= 1) {
+                      // Too few civilians left → impostor wins
                       state.phase = "RESULT";
                       state.winner = "IMPOSTOR";
-                      // Update scores
                       const impostor = state.players.find(p => p.role === "IMPOSTOR");
                       if (impostor) impostor.score += 3;
+                    } else if (state.currentRound >= state.maxRounds) {
+                      // At max rounds, voted out a civilian → revote again
+                      state.skipVotes = 0;
+                      state.players.forEach(p => {
+                        p.voteCount = 0;
+                        p.hasVoted = false;
+                      });
+                    } else {
+                      // Continue to next round
+                      state.phase = "HINTING";
+                      state.currentRound++;
+
+                      let firstIndex = 0;
+                      while (state.players[firstIndex].isEliminated) {
+                        firstIndex++;
+                      }
+                      state.currentTurnIndex = firstIndex;
+
+                      state.skipVotes = 0;
+                      state.players.forEach(p => {
+                        p.hint = undefined;
+                        p.voteCount = 0;
+                        p.hasVoted = false;
+                      });
                     }
                   }
-                } else if (state.currentRound >= state.maxRounds) {
-                   // If no one was eliminated and we are at max rounds, it's a draw or impostor wins?
-                   // Usually if civilians can't find the impostor, impostor wins.
-                   state.phase = "RESULT";
-                   state.winner = "IMPOSTOR";
-                   const impostor = state.players.find(p => p.role === "IMPOSTOR");
-                   if (impostor) impostor.score += 3;
+                } else {
+                  // No votes cast for anyone (all skipped but didn't meet threshold)
+                  // Go back to hinting if rounds remain, otherwise revote
+                  if (state.currentRound < state.maxRounds) {
+                    state.phase = "HINTING";
+                    state.currentRound++;
+                    let firstIndex = 0;
+                    while (state.players[firstIndex].isEliminated) {
+                      firstIndex++;
+                    }
+                    state.currentTurnIndex = firstIndex;
+                  }
+                  state.skipVotes = 0;
+                  state.players.forEach(p => {
+                    p.hint = undefined;
+                    p.voteCount = 0;
+                    p.hasVoted = false;
+                  });
                 }
               }
             }
@@ -336,9 +387,9 @@ async function startServer() {
 
             state.lastGuess = payload.keyword;
             const isCorrect = payload.keyword.trim().toLowerCase() === state.keyword?.trim().toLowerCase();
-            
+
             state.winner = isCorrect ? "IMPOSTOR" : "CIVILIANS";
-            
+
             // Update scores
             if (state.winner === "IMPOSTOR") {
               const impostor = state.players.find(p => p.role === "IMPOSTOR");
@@ -408,7 +459,7 @@ async function startServer() {
   } else {
     // Serve static files from dist
     app.use(express.static(path.join(process.cwd(), "dist")));
-    
+
     // SPA fallback: serve index.html for any unknown routes
     app.get("*", (req, res) => {
       res.sendFile(path.join(process.cwd(), "dist", "index.html"));
