@@ -21,7 +21,6 @@ export interface GameState {
   topic?: string;
   keyword?: string;
   currentTurnIndex: number;
-  roundStartIndex: number;
   currentRound: number;
   maxRounds: number;
   winner?: 'CIVILIANS' | 'IMPOSTOR';
