@@ -21,6 +21,8 @@ export interface GameState {
   topic?: string;
   keyword?: string;
   currentTurnIndex: number;
+  currentRound: number;
+  maxRounds: number;
   winner?: 'CIVILIANS' | 'IMPOSTOR';
   eliminatedPlayerId?: string;
   lastGuess?: string;

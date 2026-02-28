@@ -19,7 +19,8 @@ import {
   RotateCcw,
   AlertCircle,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { GameState, Player } from './types';
@@ -33,7 +34,6 @@ export default function App() {
   const [showRules, setShowRules] = useState(false);
   const [hintInput, setHintInput] = useState('');
   const [guessInput, setGuessInput] = useState('');
-  const [isFlipped, setIsFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const socketToPlayerId = useRef<string | null>(null);
@@ -133,6 +133,14 @@ export default function App() {
 
   const handlePlayAgain = () => {
     send('play_again');
+  };
+
+  const handleCancelGame = () => {
+    send('cancel_game');
+  };
+
+  const handleUpdateMaxRounds = (val: number) => {
+    send('update_settings', { maxRounds: val });
   };
 
   const copyRoomId = () => {
@@ -299,6 +307,30 @@ export default function App() {
 
       {currentPlayer?.isHost ? (
         <div className="space-y-6">
+          <div className="bg-slate-800/30 p-6 rounded-3xl border border-slate-800">
+            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Cài đặt trò chơi</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="font-bold">Số vòng tối đa</span>
+                <span className="text-xs text-slate-500">Buộc phải vote khi hết vòng</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => handleUpdateMaxRounds(Math.max(1, (gameState?.maxRounds || 10) - 1))}
+                  className="w-10 h-10 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl transition-all"
+                >
+                  -
+                </button>
+                <span className="text-xl font-bold w-8 text-center">{gameState?.maxRounds}</span>
+                <button 
+                  onClick={() => handleUpdateMaxRounds(Math.min(20, (gameState?.maxRounds || 10) + 1))}
+                  className="w-10 h-10 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl transition-all"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
           <button 
             onClick={handleStartGame}
             disabled={(gameState?.players.length || 0) < 3}
@@ -323,44 +355,37 @@ export default function App() {
     <div className="flex flex-col items-center justify-center min-h-screen p-6 max-w-[500px] mx-auto">
       <h2 className="text-2xl font-display font-bold mb-12 text-center">Vai trò của bạn</h2>
       
-      <div 
-        className="relative w-full aspect-[3/4] cursor-pointer perspective-1000"
-        onClick={() => setIsFlipped(!isFlipped)}
-      >
+      <div className="w-full aspect-[3/4]">
         <motion.div 
-          className="w-full h-full relative transition-all duration-500 preserve-3d"
-          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-full h-full bg-slate-800 rounded-[2rem] flex flex-col items-center justify-center p-8 border-4 border-primary/50 shadow-2xl"
         >
-          {/* Front */}
-          <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-primary to-secondary rounded-[2rem] flex flex-col items-center justify-center p-8 border-4 border-white/20 shadow-2xl">
-            <div className="text-8xl mb-8">🕵️</div>
-            <p className="text-xl font-bold text-white/80 uppercase tracking-widest">Chạm để lật thẻ</p>
-          </div>
-
-          {/* Back */}
-          <div className="absolute inset-0 backface-hidden bg-slate-800 rounded-[2rem] flex flex-col items-center justify-center p-8 border-4 border-primary/50 shadow-2xl rotate-y-180">
-            {currentPlayer?.role === 'IMPOSTOR' ? (
-              <>
-                <h3 className="text-3xl font-display font-bold text-primary mb-4">KẺ MẠO DANH</h3>
-                <div className="text-6xl mb-6">🕵️</div>
-                <p className="text-slate-400 mb-2 uppercase text-sm font-bold tracking-widest">Chủ đề</p>
-                <p className="text-2xl font-bold text-white">{gameState?.topic}</p>
-                <p className="mt-8 text-center text-slate-400 text-sm italic">Hãy cố gắng hòa nhập và đừng để bị phát hiện!</p>
-              </>
-            ) : (
-              <>
-                <h3 className="text-3xl font-display font-bold text-secondary mb-4">DÂN THƯỜNG</h3>
-                <div className="text-6xl mb-6">👨‍🌾</div>
-                <p className="text-slate-400 mb-2 uppercase text-sm font-bold tracking-widest">Từ khóa</p>
-                <p className="text-3xl font-bold text-white bg-secondary/20 px-6 py-2 rounded-xl border border-secondary/30">{gameState?.keyword}</p>
-                <p className="mt-8 text-center text-slate-400 text-sm italic">Đưa ra gợi ý khéo léo để tìm ra kẻ mạo danh!</p>
-              </>
-            )}
-          </div>
+          {currentPlayer?.role === 'IMPOSTOR' ? (
+            <>
+              <h3 className="text-3xl font-display font-bold text-primary mb-4 uppercase">Kẻ Mạo Danh</h3>
+              <div className="text-8xl mb-8 animate-float">🕵️</div>
+              <p className="text-slate-400 mb-2 uppercase text-sm font-bold tracking-widest">Chủ đề</p>
+              <p className="text-3xl font-bold text-white bg-primary/20 px-8 py-3 rounded-2xl border border-primary/30 shadow-inner">{gameState?.topic}</p>
+              <p className="mt-12 text-center text-slate-400 text-sm italic leading-relaxed">
+                Bạn không biết từ khóa chính xác.<br/>Hãy lắng nghe gợi ý của người khác và hòa nhập!
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-3xl font-display font-bold text-secondary mb-4 uppercase">Dân Thường</h3>
+              <div className="text-8xl mb-8 animate-float">👨‍🌾</div>
+              <p className="text-slate-400 mb-2 uppercase text-sm font-bold tracking-widest">Từ khóa của bạn</p>
+              <p className="text-4xl font-bold text-white bg-secondary/20 px-8 py-3 rounded-2xl border border-secondary/30 shadow-inner">{gameState?.keyword}</p>
+              <p className="mt-12 text-center text-slate-400 text-sm italic leading-relaxed">
+                Hãy đưa ra gợi ý đủ để đồng đội hiểu<br/>nhưng đừng quá lộ liễu cho kẻ mạo danh!
+              </p>
+            </>
+          )}
         </motion.div>
       </div>
 
-      <p className="mt-12 text-slate-500 text-center">Trò chơi sẽ bắt đầu sau vài giây...</p>
+      <p className="mt-12 text-slate-500 text-center animate-pulse">Trò chơi sẽ bắt đầu sau vài giây...</p>
     </div>
   );
 
@@ -378,14 +403,19 @@ export default function App() {
               <p className="text-xl font-bold text-white">{currentTurnPlayer?.name}</p>
             </div>
           </div>
+          <div className="text-right">
+            <h2 className="text-sm font-medium text-slate-400 uppercase tracking-widest">Vòng chơi</h2>
+            <p className="text-xl font-bold text-white">{gameState?.currentRound}/{gameState?.maxRounds}</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 overflow-hidden">
-          <div className="md:col-span-2 flex flex-col gap-4 overflow-y-auto pr-2">
+          <div className="md:col-span-2 flex flex-col gap-4 overflow-y-auto pr-2 pb-20">
             {gameState?.players.map((player) => (
               <div 
                 key={player.id}
                 className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${
+                  player.isEliminated ? 'opacity-40 grayscale' :
                   player.id === currentTurnPlayer?.id 
                     ? 'bg-primary/10 border-primary shadow-lg shadow-primary/5' 
                     : 'bg-slate-800/30 border-slate-800'
@@ -394,11 +424,11 @@ export default function App() {
                 <div className="text-3xl">{player.avatar}</div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-sm">{player.name}</span>
-                    {player.hint && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold uppercase">Đã xong</span>}
+                    <span className="font-bold text-sm">{player.name} {player.isEliminated && '(Đã bị loại)'}</span>
+                    {player.hint && !player.isEliminated && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-bold uppercase">Đã xong</span>}
                   </div>
                   <p className={`text-lg ${player.hint ? 'text-white' : 'text-slate-600 italic'}`}>
-                    {player.hint || 'Đang suy nghĩ...'}
+                    {player.isEliminated ? '---' : (player.hint || 'Đang suy nghĩ...')}
                   </p>
                 </div>
               </div>
@@ -424,7 +454,7 @@ export default function App() {
               </div>
             </div>
 
-            {isMyTurn && !currentPlayer?.hint && (
+            {isMyTurn && !currentPlayer?.hint && !currentPlayer?.isEliminated && (
               <motion.div 
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -445,6 +475,16 @@ export default function App() {
                 </button>
               </motion.div>
             )}
+
+            {currentPlayer?.isHost && (
+              <button 
+                onClick={handleCancelGame}
+                className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-4 rounded-2xl border border-red-500/30 transition-all mt-auto"
+              >
+                <X size={20} />
+                Hủy trận đấu
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -453,9 +493,15 @@ export default function App() {
 
   const renderVoting = () => (
     <div className="flex flex-col min-h-screen p-6 max-w-[900px] mx-auto">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl font-display font-bold mb-2 text-primary">Thời gian bỏ phiếu!</h2>
-        <p className="text-slate-400">Ai là kẻ mạo danh? Hãy chọn một người.</p>
+      <div className="flex items-center justify-between mb-8">
+        <div className="text-left">
+          <h2 className="text-4xl font-display font-bold mb-2 text-primary">Bỏ phiếu!</h2>
+          <p className="text-slate-400">Ai là kẻ mạo danh?</p>
+        </div>
+        <div className="text-right">
+          <h2 className="text-sm font-medium text-slate-400 uppercase tracking-widest">Vòng chơi</h2>
+          <p className="text-xl font-bold text-white">{gameState?.currentRound}/{gameState?.maxRounds}</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
@@ -516,13 +562,25 @@ export default function App() {
         </button>
       </div>
 
-      <div className="mt-auto p-6 bg-slate-800/50 rounded-3xl border border-slate-700 text-center">
-        <p className="text-slate-400 mb-2 uppercase text-xs font-bold tracking-widest">Tiến độ bỏ phiếu</p>
-        <div className="flex justify-center gap-2">
-          {gameState?.players.map((p) => (
-            <div key={p.id} className={`w-3 h-3 rounded-full ${p.hasVoted ? 'bg-green-500' : 'bg-slate-700'}`} />
-          ))}
+      <div className="mt-auto flex flex-col gap-4">
+        <div className="p-6 bg-slate-800/50 rounded-3xl border border-slate-700 text-center">
+          <p className="text-slate-400 mb-2 uppercase text-xs font-bold tracking-widest">Tiến độ bỏ phiếu</p>
+          <div className="flex justify-center gap-2">
+            {gameState?.players.filter(p => !p.isEliminated).map((p) => (
+              <div key={p.id} className={`w-3 h-3 rounded-full ${p.hasVoted ? 'bg-green-500' : 'bg-slate-700'}`} />
+            ))}
+          </div>
         </div>
+
+        {currentPlayer?.isHost && (
+          <button 
+            onClick={handleCancelGame}
+            className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-4 rounded-2xl border border-red-500/30 transition-all"
+          >
+            <X size={20} />
+            Hủy trận đấu
+          </button>
+        )}
       </div>
     </div>
   );
@@ -559,6 +617,16 @@ export default function App() {
           </div>
           <p className="text-slate-400">Đang chờ kẻ mạo danh đoán từ khóa...</p>
         </div>
+      )}
+
+      {currentPlayer?.isHost && (
+        <button 
+          onClick={handleCancelGame}
+          className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-4 rounded-2xl border border-red-500/30 transition-all mt-12"
+        >
+          <X size={20} />
+          Hủy trận đấu
+        </button>
       )}
     </div>
   );

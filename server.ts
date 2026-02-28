@@ -78,6 +78,8 @@ async function startServer() {
               phase: "LOBBY",
               players: [player],
               currentTurnIndex: 0,
+              currentRound: 0,
+              maxRounds: 10,
               skipVotes: 0,
             };
 
@@ -122,6 +124,37 @@ async function startServer() {
             break;
           }
 
+          case "update_settings": {
+            const info = socketToPlayer.get(socket);
+            if (!info) return;
+            const state = rooms.get(info.roomId);
+            if (!state || !state.players.find(p => p.id === info.playerId)?.isHost) return;
+
+            if (payload.maxRounds) {
+              state.maxRounds = payload.maxRounds;
+            }
+            broadcast(info.roomId);
+            break;
+          }
+
+          case "cancel_game": {
+            const info = socketToPlayer.get(socket);
+            if (!info) return;
+            const state = rooms.get(info.roomId);
+            if (!state || !state.players.find(p => p.id === info.playerId)?.isHost) return;
+
+            state.phase = "LOBBY";
+            state.players.forEach(p => {
+              p.isEliminated = false;
+              p.hint = undefined;
+              p.voteCount = 0;
+              p.hasVoted = false;
+              p.role = undefined;
+            });
+            broadcast(info.roomId);
+            break;
+          }
+
           case "start_game": {
             const info = socketToPlayer.get(socket);
             if (!info) return;
@@ -139,6 +172,7 @@ async function startServer() {
             state.topic = topicData.topic;
             state.keyword = keyword;
             state.phase = "ROLE_REVEAL";
+            state.currentRound = 1;
             state.currentTurnIndex = Math.floor(Math.random() * state.players.length);
             state.winner = undefined;
             state.eliminatedPlayerId = undefined;
@@ -181,9 +215,12 @@ async function startServer() {
             
             // Move to next turn
             let nextIndex = (state.currentTurnIndex + 1) % state.players.length;
+            while (state.players[nextIndex].isEliminated) {
+              nextIndex = (nextIndex + 1) % state.players.length;
+            }
             
             // Check if all players have given hints
-            const allHintsGiven = state.players.every(p => p.hint !== undefined);
+            const allHintsGiven = state.players.filter(p => !p.isEliminated).every(p => p.hint !== undefined);
             
             if (allHintsGiven) {
               state.phase = "VOTING";
@@ -217,11 +254,19 @@ async function startServer() {
             const allVoted = state.players.every(p => p.hasVoted);
             if (allVoted) {
               // Check if skip votes reach threshold (at least 50%)
-              const threshold = state.players.length / 2;
-              if (state.skipVotes >= threshold) {
+              const threshold = state.players.filter(p => !p.isEliminated).length / 2;
+              if (state.skipVotes >= threshold && state.currentRound < state.maxRounds) {
                 // Skip elimination, go back to hinting
                 state.phase = "HINTING";
-                state.currentTurnIndex = 0;
+                state.currentRound++;
+                
+                // Find first non-eliminated player to start the turn
+                let firstIndex = 0;
+                while (state.players[firstIndex].isEliminated) {
+                  firstIndex++;
+                }
+                state.currentTurnIndex = firstIndex;
+                
                 state.skipVotes = 0;
                 state.players.forEach(p => {
                   p.hint = undefined;
@@ -233,7 +278,7 @@ async function startServer() {
                 let maxVotes = -1;
                 let eliminated: Player | null = null;
                 
-                state.players.forEach(p => {
+                state.players.filter(p => !p.isEliminated).forEach(p => {
                   if (p.voteCount > maxVotes) {
                     maxVotes = p.voteCount;
                     eliminated = p;
@@ -247,13 +292,32 @@ async function startServer() {
                   if ((eliminated as Player).role === "IMPOSTOR") {
                     state.phase = "IMPOSTOR_GUESS";
                   } else {
-                    // Impostor wins if civilian is eliminated
-                    state.phase = "RESULT";
-                    state.winner = "IMPOSTOR";
-                    // Update scores
-                    const impostor = state.players.find(p => p.role === "IMPOSTOR");
-                    if (impostor) impostor.score += 3;
+                    // Check if any impostor left
+                    const impostorLeft = state.players.some(p => p.role === "IMPOSTOR" && !p.isEliminated);
+                    if (!impostorLeft) {
+                      state.phase = "RESULT";
+                      state.winner = "CIVILIANS";
+                      state.players.forEach(p => {
+                        if (p.role === "CIVILIAN") p.score += 1;
+                      });
+                    } else {
+                      // Impostor wins if civilian is eliminated (in this simplified 1-impostor version)
+                      // Actually, usually game continues until impostor is found or civilians are too few.
+                      // But the previous code said:
+                      state.phase = "RESULT";
+                      state.winner = "IMPOSTOR";
+                      // Update scores
+                      const impostor = state.players.find(p => p.role === "IMPOSTOR");
+                      if (impostor) impostor.score += 3;
+                    }
                   }
+                } else if (state.currentRound >= state.maxRounds) {
+                   // If no one was eliminated and we are at max rounds, it's a draw or impostor wins?
+                   // Usually if civilians can't find the impostor, impostor wins.
+                   state.phase = "RESULT";
+                   state.winner = "IMPOSTOR";
+                   const impostor = state.players.find(p => p.role === "IMPOSTOR");
+                   if (impostor) impostor.score += 3;
                 }
               }
             }
