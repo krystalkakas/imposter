@@ -78,6 +78,7 @@ async function startServer() {
               phase: "LOBBY",
               players: [player],
               currentTurnIndex: 0,
+              roundStartIndex: 0,
               currentRound: 0,
               maxRounds: 10,
               skipVotes: 0,
@@ -169,11 +170,18 @@ async function startServer() {
             const topicData = KEYWORD_DATA[Math.floor(Math.random() * KEYWORD_DATA.length)];
             const keyword = topicData.keywords[Math.floor(Math.random() * topicData.keywords.length)];
 
+            // Shuffle player order (Fisher-Yates) so positions are random each match
+            for (let i = state.players.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [state.players[i], state.players[j]] = [state.players[j], state.players[i]];
+            }
+
             state.topic = topicData.topic;
             state.keyword = keyword;
             state.phase = "ROLE_REVEAL";
             state.currentRound = 1;
-            state.currentTurnIndex = Math.floor(Math.random() * state.players.length);
+            state.currentTurnIndex = 0;
+            state.roundStartIndex = 0;
             state.winner = undefined;
             state.eliminatedPlayerId = undefined;
             state.lastGuess = undefined;
@@ -266,12 +274,13 @@ async function startServer() {
                 state.phase = "HINTING";
                 state.currentRound++;
 
-                // Find first non-eliminated player to start the turn
-                let firstIndex = 0;
-                while (state.players[firstIndex].isEliminated) {
-                  firstIndex++;
+                // Advance round start to next non-eliminated player
+                let nextStart = (state.roundStartIndex + 1) % state.players.length;
+                while (state.players[nextStart].isEliminated) {
+                  nextStart = (nextStart + 1) % state.players.length;
                 }
-                state.currentTurnIndex = firstIndex;
+                state.roundStartIndex = nextStart;
+                state.currentTurnIndex = nextStart;
 
                 state.skipVotes = 0;
                 state.players.forEach(p => {
@@ -337,11 +346,13 @@ async function startServer() {
                       state.phase = "HINTING";
                       state.currentRound++;
 
-                      let firstIndex = 0;
-                      while (state.players[firstIndex].isEliminated) {
-                        firstIndex++;
+                      // Advance round start to next non-eliminated player
+                      let nextStart = (state.roundStartIndex + 1) % state.players.length;
+                      while (state.players[nextStart].isEliminated) {
+                        nextStart = (nextStart + 1) % state.players.length;
                       }
-                      state.currentTurnIndex = firstIndex;
+                      state.roundStartIndex = nextStart;
+                      state.currentTurnIndex = nextStart;
 
                       state.skipVotes = 0;
                       state.players.forEach(p => {
@@ -357,11 +368,13 @@ async function startServer() {
                   if (state.currentRound < state.maxRounds) {
                     state.phase = "HINTING";
                     state.currentRound++;
-                    let firstIndex = 0;
-                    while (state.players[firstIndex].isEliminated) {
-                      firstIndex++;
+                    // Advance round start to next non-eliminated player
+                    let nextStart = (state.roundStartIndex + 1) % state.players.length;
+                    while (state.players[nextStart].isEliminated) {
+                      nextStart = (nextStart + 1) % state.players.length;
                     }
-                    state.currentTurnIndex = firstIndex;
+                    state.roundStartIndex = nextStart;
+                    state.currentTurnIndex = nextStart;
                   }
                   state.skipVotes = 0;
                   state.players.forEach(p => {
