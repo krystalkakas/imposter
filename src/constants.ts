@@ -42,7 +42,7 @@ export const KEYWORD_DATA: KeywordTopic[] = [
   },
   {
     topic: "Quả vỏ dày",
-    keywords: ["Quả sầu riêng", "Quả mít", "Quả dừa", "Quả bưởi", "Quả cam", "Quả măng cụt", "Quả dứa", "Quả thanh long", "Quả xoài", "Quả dưa hấu"]
+    keywords: ["Quả sầu riêng", "Quả mít", "Quả dừa", "Quả bưởi", "Quả cam", "Quả măng cụt", "Quả dứa", "Quả dưa hấu"]
   },
   {
     topic: "Đồ dùng học tập",
@@ -50,11 +50,11 @@ export const KEYWORD_DATA: KeywordTopic[] = [
   },
   {
     topic: "Thời tiết",
-    keywords: ["Cầu vồng", "Sấm sét", "Mưa phùn", "Nắng gắt", "Sương mù", "Bão lốc", "Bình minh", "Hoàng hôn", "Thủy triều", "Nhật thực"]
+    keywords: ["Cầu vồng", "Sấm sét", "Mưa phùn", "Nắng", "Sương mù", "Bão", "Bình minh", "Hoàng hôn", "Thủy triều", "Nhật thực"]
   },
   {
     topic: "Nội thất",
-    keywords: ["Giường ngủ", "Gối ôm", "Chăn bông", "Đèn ngủ", "Tủ quần áo", "Bàn trang điểm", "Rèm cửa", "Thảm sàn", "Đồng hồ báo thức", "Máy xông tinh dầu"]
+    keywords: ["Giường ngủ", "Gối ôm", "Chăn bông", "Đèn ngủ", "Tủ quần áo", "Bàn trang điểm", "Rèm cửa", "Thảm sàn", "Đồng hồ báo thức"]
   },
   {
     topic: "Xe cộ",

@@ -82,6 +82,7 @@ async function startServer() {
               currentRound: 0,
               maxRounds: 10,
               skipVotes: 0,
+              usedKeywords: [],
             };
 
             rooms.set(roomId, state);
@@ -166,9 +167,23 @@ async function startServer() {
               return;
             }
 
-            // Setup game
-            const topicData = KEYWORD_DATA[Math.floor(Math.random() * KEYWORD_DATA.length)];
-            const keyword = topicData.keywords[Math.floor(Math.random() * topicData.keywords.length)];
+            // Collect all available keywords, excluding used ones
+            let allKeywords: { topic: string; keyword: string }[] = [];
+            KEYWORD_DATA.forEach(td => {
+              td.keywords.forEach(kw => {
+                allKeywords.push({ topic: td.topic, keyword: kw });
+              });
+            });
+
+            let available = allKeywords.filter(k => !state.usedKeywords.includes(k.keyword));
+            // If all keywords have been used, reset
+            if (available.length === 0) {
+              state.usedKeywords = [];
+              available = allKeywords;
+            }
+
+            const chosen = available[Math.floor(Math.random() * available.length)];
+            state.usedKeywords.push(chosen.keyword);
 
             // Shuffle player order (Fisher-Yates) so positions are random each match
             for (let i = state.players.length - 1; i > 0; i--) {
@@ -176,8 +191,8 @@ async function startServer() {
               [state.players[i], state.players[j]] = [state.players[j], state.players[i]];
             }
 
-            state.topic = topicData.topic;
-            state.keyword = keyword;
+            state.topic = chosen.topic;
+            state.keyword = chosen.keyword;
             state.phase = "ROLE_REVEAL";
             state.currentRound = 1;
             state.currentTurnIndex = 0;

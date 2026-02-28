@@ -28,6 +28,7 @@ export interface GameState {
   eliminatedPlayerId?: string;
   lastGuess?: string;
   skipVotes: number;
+  usedKeywords: string[];
 }
 
 export interface ServerToClientEvents {
